@@ -1,18 +1,18 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <button 
+      type="button"
+      @click="router.push({
+        name: 'Game'
+      })"
+    >
+      Start
+    </button>
   </div>
 </template>
 
-<script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+<script setup>
+import { useRouter } from 'vue-router'
 
-export default {
-  name: 'HomeView',
-  components: {
-    HelloWorld
-  }
-}
+const router = useRouter()
 </script>
