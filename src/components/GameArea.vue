@@ -25,7 +25,6 @@
 </template>
 
 <script setup>
-// import { onMounted } from 'vue'
 import { reactive } from 'vue'
 
 const rules = {
@@ -36,6 +35,7 @@ const rules = {
   firstMove: 'player',
 }
 
+// FIXME: Перенести в use создания и преобразований матрицы
 const matrix = reactive(
   Array(rules.range)
   .fill()
@@ -74,8 +74,8 @@ const checkWinnerCondition = (mover) => {
     }
   }
 
-  // Проверка по диагонали слева
-  const isWinnerViaDiagonalToDown = (m) => {
+  // Проверка по диагонали
+  const isWinnerViaDiagonal = (m) => {
     let flags = []
     m.forEach((row, i) => {
       row.forEach((cell, j) => {
@@ -91,6 +91,7 @@ const checkWinnerCondition = (mover) => {
     }
   }
 
+  // FIXME: Перенести в use создания и преобразований матрицы
   // Траспонирование матрицы
   const transposedMatrix = () => {
     return matrix[0]
@@ -98,7 +99,7 @@ const checkWinnerCondition = (mover) => {
   }
 
   // Отзеркаливание матрицы
-  const mirrorMatrix = () => {
+  const mirroredMatrix = () => {
     return matrix
       .map(row => row.slice().reverse())
   }
@@ -116,13 +117,13 @@ const checkWinnerCondition = (mover) => {
   }
 
   // 3. Победа по диагонали слева вниз
-  if (isWinnerViaDiagonalToDown(matrix)) {
+  if (isWinnerViaDiagonal(matrix)) {
     console.log('Победа по диагонали слева вниз')
     return
   }
   
   // 4. Победа по диагонали справа вниз
-  if (isWinnerViaDiagonalToDown(mirrorMatrix())) {
+  if (isWinnerViaDiagonal(mirroredMatrix())) {
     console.log('Победа по диагонали справа вниз!')
     return
   }
