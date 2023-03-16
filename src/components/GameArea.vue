@@ -12,11 +12,11 @@
         >
           <button 
             type="button"
-            :disabled="currentMove === 'computer' && !cell"
+            :disabled="currentMove === 'computer' || cell"
             :ref="`cell-${x}-${y}`"
             @click="onMark(x, y)"
           >
-            {{ cell || '-' }}
+            {{ cell || 'ㅤ' }}
           </button>
         </div>
       </template>
@@ -25,107 +25,51 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { useSettings } from '@/libs/settings.js'
+import { useMatrix } from '@/libs/matrix.js'
 
-const rules = {
-  range: 3,
-  playerMark: 'x',
-  computerMark: 'o',
-  difficulty: 0,
-  firstMove: 'player',
-}
+const { settings } = useSettings()
+const {
+  matrix,
+  testMatrixAxis,
+  testMatrixDiagonal
+} = useMatrix()
 
-// FIXME: Перенести в use создания и преобразований матрицы
-const matrix = reactive(
-  Array(rules.range)
-  .fill()
-  .map(() => Array(rules.range).fill())
-); 
-
-let currentMove = rules.firstMove;
-
-const documentRoot = document.documentElement;
-documentRoot.style.setProperty(
-  "--matrix-range", 
-  rules.range
-);
+let currentMove = settings.firstMove;
 
 const onMark = (x, y) => {
-  matrix[x][y] = rules.playerMark
+  matrix[x][y] = settings.playerMark
 
-  checkWinnerCondition('player')
+  victoryConditionsCheck('player')
 }
 
-const checkWinnerCondition = (mover) => {
-  // Проверка по осям
-  const isWinnerViaLine = (m) => {
-    const result = m.map(row => {
-      return (row.filter(item => {
-        if (mover === 'player') {
-          return item === rules.playerMark
-        }
-        if (mover === 'computer') {
-          return item === rules.computerMark
-        }
-      }).length === rules.range)
-    })
-    if (result.some(item => item)) {
-      return true
-    }
-  }
-
-  // Проверка по диагонали
-  const isWinnerViaDiagonal = (m) => {
-    let flags = []
-    m.forEach((row, i) => {
-      row.forEach((cell, j) => {
-        if (mover === 'player') {
-          if (i === j && cell === rules.playerMark) {
-            flags.push(true)
-          }
-        }
-      })
-    })
-    if (flags.length === rules.range) {
-      return true
-    }
-  }
-
-  // FIXME: Перенести в use создания и преобразований матрицы
-  // Траспонирование матрицы
-  const transposedMatrix = () => {
-    return matrix[0]
-      .map((_, i) => matrix.map(row => row[i]))
-  }
-
-  // Отзеркаливание матрицы
-  const mirroredMatrix = () => {
-    return matrix
-      .map(row => row.slice().reverse())
-  }
-
+const victoryConditionsCheck = (mover) => {
   // 1. Победа по горизонтали
-  if (isWinnerViaLine(matrix)) {
+  if (testMatrixAxis({ mover })) {
     console.log('Победа по горизонтали!')
     return
   }
 
   // 2. Победа по вертикали
-  if (isWinnerViaLine(transposedMatrix())) {
+  if (testMatrixAxis({ mover, direction: 'vertical' })) {
     console.log('Победа по вертикали!')
     return
   }
 
   // 3. Победа по диагонали слева вниз
-  if (isWinnerViaDiagonal(matrix)) {
+  if (testMatrixDiagonal({ mover })) {
     console.log('Победа по диагонали слева вниз')
     return
   }
   
   // 4. Победа по диагонали справа вниз
-  if (isWinnerViaDiagonal(mirroredMatrix())) {
+  if (testMatrixDiagonal({ mover, direction: 'toTop' })) {
     console.log('Победа по диагонали справа вниз!')
     return
+  }
+
+  if (mover === 'player') {
+    currentMove = 'computer'
   }
 }
 </script>
