@@ -1,4 +1,5 @@
 import { createStore } from 'vuex'
+import debugModule from './debug.js'
 
 export default createStore({
   state: () => ({
@@ -90,5 +91,9 @@ export default createStore({
     }
   },
   modules: {
+    debug: {
+      namespaced: true,
+      ...debugModule
+    },
   }
 })

@@ -1,22 +1,55 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
+import { useSettings } from '@/libs/settings.js'
 import { useMatrix } from '@/libs/matrix.js'
 
 export function useGameplay() {
   const store = useStore()
   const route = useRoute()
-  const {
-    setMatrix,
-    testMatrixAxis,
-    testMatrixDiagonal,
-  } = useMatrix()
+  const { settings } = useSettings()
+  const matrix = useMatrix()
+  const debug = route.query.debug
 
-  setMatrix()
+  matrix.setMatrix()
+
+  const setMark = ({ mover, coords }) => {
+    if (debug) {
+      console.log('[debug] gameplay:setMark() | Ставит маркер:', mover)
+    }
+
+    matrix.markCell({
+      mark: (mover === 'player') ? settings.playerMark : settings.computerMark,
+      coords: coords
+    })
+
+    const result = victoryConditionsCheck(mover);
+    if (result.victory) {
+      declareWinner('player')
+
+      if (debug) {
+        console.log('[debug] gameplay:setMark | ', result.message)
+      }
+    } else {
+      store.dispatch('changeMove', mover === 'player' ? 'computer' : mover)
+    }
+
+    // const result = gameplay.victoryConditionsCheck(mover);
+    // if (result.victory) {
+    //   gameplay.declareWinner(mover)
+    //   console.warn(result.message)
+    // } else {
+    //   if (route.query.dontPassMoveToComputer) {
+    //     return
+    //   }
+
+    //   store.dispatch('changeMove', 'computer')
+    // }
+  }
 
   const victoryConditionsCheck = (mover) => {
     // 1. Победа по горизонтали
-    if (testMatrixAxis({ mover })) {
+    if (matrix.testMatrixAxis({ mover })) {
       return {
         victory: true,
         message: 'Победа по горизонтали'
@@ -24,7 +57,7 @@ export function useGameplay() {
     }
 
     // 2. Победа по вертикали
-    if (testMatrixAxis({ mover, direction: 'vertical' })) {
+    if (matrix.testMatrixAxis({ mover, direction: 'vertical' })) {
       return {
         victory: true,
         message: 'Победа по вертикали'
@@ -32,7 +65,7 @@ export function useGameplay() {
     }
 
     // 3. Победа по диагонали слева вниз
-    if (testMatrixDiagonal({ mover })) {
+    if (matrix.testMatrixDiagonal({ mover })) {
       return {
         victory: true,
         message: 'Победа по диагонали'
@@ -40,7 +73,7 @@ export function useGameplay() {
     }
 
     // 4. Победа по диагонали справа вниз
-    if (testMatrixDiagonal({ mover, direction: 'toTop' })) {
+    if (matrix.testMatrixDiagonal({ mover, direction: 'toTop' })) {
       return {
         victory: true,
         message: 'Победа по диагонали'
@@ -70,7 +103,7 @@ export function useGameplay() {
   }
 
   const declareDraw = () => {
-    if (route.query.debug) {
+    if (debug) {
       const matrix = computed(() => store.getters['getMatrix']).value
       console.log('[debug] Победитель: Ничья')
       console.log('[debug] matrix:', matrix)
@@ -81,7 +114,7 @@ export function useGameplay() {
   }
 
   const declareWinner = (winner) => {
-    if (route.query.debug) {
+    if (debug) {
       const matrix = computed(() => store.getters['getMatrix']).value
       console.log(`[debug] Победитель: ${winner}`)
       console.log('[debug] matrix:', matrix)
@@ -92,15 +125,15 @@ export function useGameplay() {
   }
 
   const resetGame = () => {
-    if (route.query.debug) console.log('[debug] gameplay:resetGame()')
+    if (debug) console.log('[debug] gameplay:resetGame()')
 
-    setMatrix()
+    matrix.setMatrix()
     store.dispatch('clearCurrentGameStat')
   }
 
   const newGame = () => {
     const gameState = computed(() => store.getters['getGameState']).value
-    if (route.query.debug) console.warn(`[debug] gameplay:newGame() gameState:`, gameState)
+    if (debug) console.log(`[debug] gameplay:newGame() gameState:`, gameState)
 
     if (gameState) {
       alert(`
@@ -110,11 +143,12 @@ export function useGameplay() {
 
       resetGame()
     } else {
-      if (route.query.debug) console.warn(`[debug] Ошибка: игра продолжается`)
+      if (debug) console.log(`[debug] Ошибка: игра продолжается`)
     }
   }
 
   return {
+    setMark,
     victoryConditionsCheck,
     checkFreeMovies,
     declareDraw,

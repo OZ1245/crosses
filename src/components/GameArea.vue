@@ -14,13 +14,13 @@
             type="button"
             :disabled="currentMove === 'computer' || cell"
             :ref="`cell-${x}-${y}`"
-            @click="route.query.debug && db__allowMoverPopup ? db__fShowCellPopup(x, y) : onMark(x, y)"
+            @click="debugMode && db__allowMoverPopup ? db__fShowCellPopup(x, y) : onMark(x, y)"
           >
             {{ cell || 'ㅤ' }}
           </button>
 
           <ul
-            v-if="route.query.debug && db__allowMoverPopup"
+            v-if="debugMode && db__allowMoverPopup"
             v-show="db__showCellPopup && (x === db__x && y === db__y)" 
             class="game-area__cell-popup"
           >
@@ -48,14 +48,14 @@
     </section>
 
     <section 
-      v-if="route.query.debug"
+      v-if="debugMode"
       class="game-area__debug-actions-panel"
     >
-      <button @click="db__allowMoverPopup = !db__allowMoverPopup">
+      <button @click="db__onAllowMoverPopup()">
         Выбор хода: {{ db__allowMoverPopup ? 'вкл' : 'выкл' }}
       </button>
 
-      <button @click="db__fResetGame()">
+      <button @click="db__onResetGame()">
         Сброс
       </button>
     </section>
@@ -67,6 +67,7 @@ import { watch, computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { useSettings } from '@/libs/settings.js'
+import { useDebug } from '@/libs/debug.js'
 import { useMatrix } from '@/libs/matrix.js'
 import { useComputer } from '@/libs/computer.js'
 import { useGameplay } from '@/libs/gameplay.js'
@@ -74,18 +75,17 @@ import { useGameplay } from '@/libs/gameplay.js'
 const route = useRoute()
 const store = useStore()
 const { settings } = useSettings()
-const { 
-  markCell,
-  getMatrix
-} = useMatrix()
+const { getMatrix } = useMatrix()
 const { computerMove } = useComputer()
 const gameplay = useGameplay()
+const debug = useDebug()
+const debugMode = debug.debugMode
 
 // [DEBUG values]
 let db__showCellPopup = ref(false)
 let db__x = ref(0)
 let db__y = ref(0)
-let db__allowMoverPopup = ref(false)
+let db__allowMoverPopup = ref(debug.getAllowMoverPopup)
 // END [DEBUG values]
 
 let matrix = computed(() => getMatrix())
@@ -98,22 +98,15 @@ watch(currentMove, (val, old) => {
 })
 
 store.dispatch('changeMove', settings.firstMove)
-if (route.query.debug) {
+if (debugMode) {
   console.log('[debug] db__fShowCellPopup method | route:', route)
 }
 
 const onMark = (x, y) => {
-  markCell({
-    mark: settings.playerMark,
+  gameplay.setMark({
+    mover: 'player',
     coords: { x, y }
   })
-
-  const result = gameplay.victoryConditionsCheck('player');
-  if (result.victory) {
-    gameplay.declareWinner('player')
-  } else {
-    store.dispatch('changeMove', 'computer')
-  }
 }
 
 // [DEBUG methods]
@@ -129,26 +122,18 @@ const db__onMark = ({ coords, mover }) => {
   console.log('[debug] db__onMark method | mover:', mover)
   console.log('[debug] db__onMark method | settings.computerMark:', settings.computerMark)
   db__showCellPopup.value = false
-  
-  markCell({
-    mark: (mover === 'player') ? settings.playerMark : settings.computerMark,
+
+  gameplay.setMark({
+    mover: mover,
     coords: coords
   })
-
-  const result = gameplay.victoryConditionsCheck(mover);
-  if (result.victory) {
-    gameplay.declareWinner(mover)
-    console.warn(result.message)
-  } else {
-    if (route.query.dontPassMoveToComputer) {
-      return
-    }
-
-    store.dispatch('changeMove', 'computer')
-  }
 }
 
-const db__fResetGame = () => {
+const db__onAllowMoverPopup = () => {
+  debug.allowMoverPopup(!db__allowMoverPopup.value)
+}
+
+const db__onResetGame = () => {
   console.log('[debug] Сброс игры')
 
   gameplay.resetGame()

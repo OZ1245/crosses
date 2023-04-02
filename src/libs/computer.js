@@ -1,13 +1,13 @@
 // import { nextTick } from 'vue'
-import { useStore } from 'vuex'
+// import { useStore } from 'vuex'
 import { useSettings } from '@/libs/settings.js'
 import { useMatrix } from '@/libs/matrix.js'
 import { useGameplay } from '@/libs/gameplay.js'
 
 export function useComputer() {
-  const store = useStore()
+  // const store = useStore()
   const { settings } = useSettings()
-  const { checkMatrixCell, markCell } = useMatrix()
+  const matrix = useMatrix()
   const gameplay = useGameplay()
 
   const rand = () => {
@@ -22,22 +22,12 @@ export function useComputer() {
           let x = rand()
           let y = rand()
 
-          const result = checkMatrixCell({ x, y })
-          console.log('computer:move() checkMatrixCell -> result:', result)
+          const result = matrix.checkMatrixCell({ x, y })
           if (result) {
-            markCell({
-              mark: settings.computerMark,
+            gameplay.setMark({
+              mover: settings.computerMark,
               coords: { x, y }
-            });
-
-            const result = gameplay.victoryConditionsCheck('computer');
-            console.log('computer:move() gameplay.victoryConditionsCheck -> result', result)
-            if (result.victory) {
-              gameplay.declareWinner('computer')
-              console.warn(result.message)
-            } else {
-              store.dispatch('changeMove', 'player')
-            }
+            })
           } else {
             move()
           }
