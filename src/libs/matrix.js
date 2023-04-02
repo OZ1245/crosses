@@ -1,7 +1,9 @@
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
+import { useStore } from 'vuex'
 import { useSettings } from '@/libs/settings.js'
 
 export function useMatrix() {
+  const store = useStore()
   const { settings } = useSettings()
 
   const documentRoot = document.documentElement
@@ -11,35 +13,48 @@ export function useMatrix() {
   )
 
   // Траспонирование матрицы
-  const transposedMatrix = () => {
+  const $_matrix_transposedMatrix = () => {
+    const matrix = computed(() => store.getters['getMatrix']).value
+
     return matrix[0]
       .map((_, i) => matrix.map(row => row[i]))
   }
 
   // Отзеркаливание матрицы
-  const mirroredMatrix = () => {
+  const $_matrix_mirroredMatrix = () => {
+    const matrix = computed(() => store.getters['getMatrix']).value
+
     return matrix
       .map(row => row.slice().reverse())
   }
 
   // Проверка по осям
-  const testMatrixAxis = ({ mover, direction = 'horizontal' }) => {
-    const m = (direction === 'vertical') ? transposedMatrix() : matrix
+  const testAxis = ({ mover, direction = 'horizontal' }) => {
+    const matrix = computed(() => store.getters['getMatrix']).value
+
+    const m = (direction === 'vertical') ? $_matrix_transposedMatrix() : matrix
     const mark = (mover === 'player') ? settings.playerMark : settings.computerMark
+
+    console.log('martix:testAxis() mark:', mark)
 
     const result = m.map(row => {
       return (row.filter(item => {
         return item === mark
       }).length === settings.range)
     })
+
+    console.log('matrix:testAxis() result:', result)
+
     if (result.some(item => item)) {
       return true
     }
   }
 
   // Проверка по диагонали
-  const testMatrixDiagonal = ({ mover, direction = 'toBottom' }) => {
-    const m = (direction === 'toTop') ? mirroredMatrix() : matrix
+  const testDiagonal = ({ mover, direction = 'toBottom' }) => {
+    const matrix = computed(() => store.getters['getMatrix']).value
+
+    const m = (direction === 'toTop') ? $_matrix_mirroredMatrix() : matrix
     const mark = (mover === 'player') ? settings.playerMark : settings.computerMark
 
     let flags = []
@@ -55,15 +70,37 @@ export function useMatrix() {
     }
   }
 
-  const matrix = reactive(
-    Array(settings.range)
-      .fill()
-      .map(() => Array(settings.range).fill())
-  );
+  const setMatrix = () => {
+    const matrix = reactive(
+      Array(settings.range)
+        .fill()
+        .map(() => Array(settings.range).fill())
+    )
+    
+    store.dispatch('setMatrix', matrix)
+  }
+
+  const getMatrix = () => {
+    return computed(() => store.getters['getMatrix']).value
+  }
+
+  const markCell = ({ mark, coords }) => {
+    store.dispatch('markCell', { mark, coords })
+  }
+  
+  const checkCell = ({ x, y }) => {
+    console.log('matrix():checkCell coords:', { x, y })
+    const matrix = computed(() => store.getters['getMatrix']).value
+    console.log('matrix():checkCell matrix[x][y]:', matrix[x][y])
+    return !matrix[x][y]
+  }
 
   return {
-    matrix,
-    testMatrixAxis,
-    testMatrixDiagonal
+    setMatrix,
+    getMatrix,
+    markCell,
+    testMatrixAxis: testAxis,
+    testMatrixDiagonal: testDiagonal,
+    checkMatrixCell: checkCell
   }
 }
