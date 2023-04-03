@@ -1,20 +1,24 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
-import { useRoute } from 'vue-router'
+import { useDebug } from '@/libs/debug.js'
 import { useSettings } from '@/libs/settings.js'
 import { useMatrix } from '@/libs/matrix.js'
 
 export function useGameplay() {
   const store = useStore()
-  const route = useRoute()
   const { settings } = useSettings()
   const matrix = useMatrix()
-  const debug = route.query.debug
+  const debug = useDebug()
+  const debugMode = debug.debugMode
+
+  // [debug] variables
+  const db__getDontPassMoveToComputer = computed(() => debug.getDontPassMoveToComputer).value
+  // [END] [debug] variables
 
   matrix.setMatrix()
 
   const setMark = ({ mover, coords }) => {
-    if (debug) {
+    if (debugMode) {
       console.log('[debug] gameplay:setMark() | Ставит маркер:', mover)
     }
 
@@ -25,26 +29,23 @@ export function useGameplay() {
 
     const result = victoryConditionsCheck(mover);
     if (result.victory) {
-      declareWinner('player')
+      declareWinner({
+        winner: mover,
+        message: result.message
+      })
 
-      if (debug) {
-        console.log('[debug] gameplay:setMark | ', result.message)
+      if (debugMode) {
+        console.log('[debug] gameplay:setMark | Условие победы: ', result.message)
       }
-    } else {
-      store.dispatch('changeMove', mover === 'player' ? 'computer' : mover)
+
+      return;
     }
 
-    // const result = gameplay.victoryConditionsCheck(mover);
-    // if (result.victory) {
-    //   gameplay.declareWinner(mover)
-    //   console.warn(result.message)
-    // } else {
-    //   if (route.query.dontPassMoveToComputer) {
-    //     return
-    //   }
+    if (debugMode && mover === 'player' && db__getDontPassMoveToComputer) {
+      return;
+    }
 
-    //   store.dispatch('changeMove', 'computer')
-    // }
+    store.dispatch('changeMove', mover === 'player' ? 'computer' : 'player')
   }
 
   const victoryConditionsCheck = (mover) => {
@@ -103,37 +104,37 @@ export function useGameplay() {
   }
 
   const declareDraw = () => {
-    if (debug) {
+    if (debugMode) {
       const matrix = computed(() => store.getters['getMatrix']).value
       console.log('[debug] Победитель: Ничья')
       console.log('[debug] matrix:', matrix)
     }
 
     store.dispatch('setDraw')
-    newGame()
+    gameOver()
   }
 
-  const declareWinner = (winner) => {
-    if (debug) {
+  const declareWinner = (victory) => {
+    if (debugMode) {
       const matrix = computed(() => store.getters['getMatrix']).value
-      console.log(`[debug] Победитель: ${winner}`)
+      console.log(`[debug] Победитель: ${victory.mover}`)
       console.log('[debug] matrix:', matrix)
     }
 
-    store.dispatch('setVictory', winner)
-    newGame()
+    store.dispatch('setVictory', victory)
+    gameOver()
   }
 
   const resetGame = () => {
-    if (debug) console.log('[debug] gameplay:resetGame()')
+    if (debugMode) console.log('[debug] gameplay:resetGame()')
 
     matrix.setMatrix()
     store.dispatch('clearCurrentGameStat')
   }
 
-  const newGame = () => {
+  const gameOver = () => {
     const gameState = computed(() => store.getters['getGameState']).value
-    if (debug) console.log(`[debug] gameplay:newGame() gameState:`, gameState)
+    if (debugMode) console.log(`[debug] gameplay:newGame() gameState:`, gameState)
 
     if (gameState) {
       alert(`
@@ -143,7 +144,7 @@ export function useGameplay() {
 
       resetGame()
     } else {
-      if (debug) console.log(`[debug] Ошибка: игра продолжается`)
+      if (debugMode) console.log(`[debug] Ошибка: игра продолжается`)
     }
   }
 

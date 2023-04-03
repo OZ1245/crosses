@@ -25,7 +25,7 @@ export function useComputer() {
           const result = matrix.checkMatrixCell({ x, y })
           if (result) {
             gameplay.setMark({
-              mover: settings.computerMark,
+              mover: 'computer',
               coords: { x, y }
             })
           } else {

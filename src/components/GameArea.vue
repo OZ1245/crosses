@@ -85,7 +85,7 @@ const debugMode = debug.debugMode
 let db__showCellPopup = ref(false)
 let db__x = ref(0)
 let db__y = ref(0)
-let db__allowMoverPopup = ref(debug.getAllowMoverPopup)
+let db__allowMoverPopup = computed(() => debug.getAllowMoverPopup())
 // END [DEBUG values]
 
 let matrix = computed(() => getMatrix())

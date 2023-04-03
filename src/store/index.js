@@ -29,7 +29,6 @@ export default createStore({
     ),
 
     getGameState: ({ isDraw, victory }) => (
-      // isDraw || victory || null
       isDraw ? 'Ничья' : victory || null
     )
   },
@@ -76,8 +75,8 @@ export default createStore({
       commit('SET_CURRENT_MOVE', mover)
     },
 
-    setVictory({ commit }, winner) {
-      commit('SET_VICTORY', { winner })
+    setVictory({ commit }, victory) {
+      commit('SET_VICTORY', victory)
     },
 
     setDraw({ commit }) {

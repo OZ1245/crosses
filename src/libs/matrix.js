@@ -1,10 +1,12 @@
 import { reactive, computed } from 'vue'
 import { useStore } from 'vuex'
+import { useDebug } from '@/libs/debug.js'
 import { useSettings } from '@/libs/settings.js'
 
 export function useMatrix() {
   const store = useStore()
   const { settings } = useSettings()
+  const { debugMode } = useDebug()
 
   const documentRoot = document.documentElement
   documentRoot.style.setProperty(
@@ -35,15 +37,11 @@ export function useMatrix() {
     const m = (direction === 'vertical') ? $_matrix_transposedMatrix() : matrix
     const mark = (mover === 'player') ? settings.playerMark : settings.computerMark
 
-    console.log('martix:testAxis() mark:', mark)
-
     const result = m.map(row => {
       return (row.filter(item => {
         return item === mark
       }).length === settings.range)
     })
-
-    console.log('matrix:testAxis() result:', result)
 
     if (result.some(item => item)) {
       return true
@@ -80,18 +78,19 @@ export function useMatrix() {
     store.dispatch('setMatrix', matrix)
   }
 
-  const getMatrix = () => {
-    return computed(() => store.getters['getMatrix']).value
-  }
+  const getMatrix = () => computed(() => store.getters['getMatrix']).value
 
   const markCell = ({ mark, coords }) => {
     store.dispatch('markCell', { mark, coords })
   }
   
   const checkCell = ({ x, y }) => {
-    console.log('matrix():checkCell coords:', { x, y })
+    if (debugMode) console.log('[debug] matrix():checkCell coords:', { x, y })
+
     const matrix = computed(() => store.getters['getMatrix']).value
-    console.log('matrix():checkCell matrix[x][y]:', matrix[x][y])
+
+    if (debugMode) console.log('[debug] matrix():checkCell matrix[x][y]:', matrix[x][y])
+
     return !matrix[x][y]
   }
 
