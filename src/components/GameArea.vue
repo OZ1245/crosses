@@ -64,24 +64,20 @@
 
 <script setup>
 import { watch, computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 import { useSettings } from '@/libs/settings.js'
 import { useDebug } from '@/libs/debug.js'
 import { useMatrix } from '@/libs/matrix.js'
 import { useComputer } from '@/libs/computer.js'
 import { useGameplay } from '@/libs/gameplay.js'
 
-const route = useRoute()
-const store = useStore()
 const { settings } = useSettings()
 const { getMatrix } = useMatrix()
 const { computerMove } = useComputer()
 const gameplay = useGameplay()
 const debug = useDebug()
-const debugMode = debug.debugMode
 
 // [DEBUG values]
+const debugMode = debug.debugMode
 let db__showCellPopup = ref(false)
 let db__x = ref(0)
 let db__y = ref(0)
@@ -90,17 +86,14 @@ let db__allowMoverPopup = computed(() => debug.getAllowMoverPopup())
 
 let matrix = computed(() => getMatrix())
 
-let currentMove = computed(() => store.getters['getCurrentMove'])
+let currentMove = computed(() => gameplay.getCurrentMove())
 watch(currentMove, (val, old) => {
   if (val !== old && val === 'computer') {
     computerMove()
   }
 })
 
-store.dispatch('changeMove', settings.firstMove)
-if (debugMode) {
-  console.log('[debug] db__fShowCellPopup method | route:', route)
-}
+gameplay.changeMove(settings.firstMove)
 
 const onMark = (x, y) => {
   gameplay.setMark({

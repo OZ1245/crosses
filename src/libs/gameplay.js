@@ -17,6 +17,12 @@ export function useGameplay() {
 
   matrix.setMatrix()
 
+  const getCurrentMove = () => computed(() => store.getters['getCurrentMove']).value
+
+  const changeMove = (mover) => {
+    store.dispatch('changeMove', mover)
+  }
+
   const setMark = ({ mover, coords }) => {
     if (debugMode) {
       console.log('[debug] gameplay:setMark() | Ставит маркер:', mover)
@@ -149,6 +155,8 @@ export function useGameplay() {
   }
 
   return {
+    getCurrentMove,
+    changeMove,
     setMark,
     victoryConditionsCheck,
     checkFreeMovies,
