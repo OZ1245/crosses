@@ -2,6 +2,10 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRoute } from 'vue-router'
 
+/**
+ * Библиотека управления дебаг-режимом
+ * @returns {Object} Публичные методы
+ */
 export function useDebug() {
   const store = useStore()
   const route = useRoute()
@@ -14,7 +18,6 @@ export function useDebug() {
   const allowMoverPopup = (value) => {
     store.dispatch('debug/allowMoverPopup', value)
   }
-  // [END] Разрешить попап выбора хода
 
   // Не передавать ход компьютеру
   const getDontPassMoveToComputer = computed(() => store.getters['debug/dontPassMoveToComputer']).value
@@ -22,7 +25,6 @@ export function useDebug() {
   const dontPassMoveToComputer = (value) => {
     store.dispatch('debug/dontPassMoveToComputer', value)
   }
-  // [END] Не передавать ход компьютеру
   
   return {
     debugMode,

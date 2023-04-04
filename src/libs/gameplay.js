@@ -4,25 +4,85 @@ import { useDebug } from '@/libs/debug.js'
 import { useSettings } from '@/libs/settings.js'
 import { useMatrix } from '@/libs/matrix.js'
 
+/**
+ * Библиотека управления геймплеем
+ * @returns {Object} Публичные методы
+ */
 export function useGameplay() {
   const store = useStore()
   const { settings } = useSettings()
   const matrix = useMatrix()
   const debug = useDebug()
-  const debugMode = debug.debugMode
-
+  
   // [debug] variables
+  const debugMode = debug.debugMode
   const db__getDontPassMoveToComputer = computed(() => debug.getDontPassMoveToComputer).value
   // [END] [debug] variables
 
+  /**
+   * Проверка условий победы
+   * @private
+   * @param {String} mover Кто ходил
+   * @returns {Object} Кто победил и как
+   */
+  const $_gameplay_victoryConditionsCheck = (mover) => {
+    // Победа по горизонтали
+    if (matrix.testMatrixAxis({ mover })) {
+      return {
+        victory: true,
+        message: 'Победа по горизонтали'
+      }
+    }
+
+    // Победа по вертикали
+    if (matrix.testMatrixAxis({ mover, direction: 'vertical' })) {
+      return {
+        victory: true,
+        message: 'Победа по вертикали'
+      }
+    }
+
+    // Победа по диагонали слева вниз
+    if (matrix.testMatrixDiagonal({ mover })) {
+      return {
+        victory: true,
+        message: 'Победа по диагонали'
+      }
+    }
+
+    // Победа по диагонали справа вниз
+    if (matrix.testMatrixDiagonal({ mover, direction: 'toTop' })) {
+      return {
+        victory: true,
+        message: 'Победа по диагонали'
+      }
+    }
+
+    return {
+      victory: false,
+      message: null
+    }
+  }
+
+  // Инициализация матрицы
   matrix.setMatrix()
 
+  // Получить, кто сейчас ходит
   const getCurrentMove = () => computed(() => store.getters['getCurrentMove']).value
 
+  /**
+   * Сменить того, кто ходит
+   * @param {String} mover Кто ходит
+   */
   const changeMove = (mover) => {
     store.dispatch('changeMove', mover)
   }
 
+  /**
+   * Установка маркера в ячейку
+   * @param {String} mover Кто ходит 
+   * @param {Object} coords Координаты { x, y } 
+   */
   const setMark = ({ mover, coords }) => {
     if (debugMode) {
       console.log('[debug] gameplay:setMark() | Ставит маркер:', mover)
@@ -33,7 +93,7 @@ export function useGameplay() {
       coords: coords
     })
 
-    const result = victoryConditionsCheck(mover);
+    const result = $_gameplay_victoryConditionsCheck(mover);
     if (result.victory) {
       declareWinner({
         winner: mover,
@@ -54,45 +114,10 @@ export function useGameplay() {
     store.dispatch('changeMove', mover === 'player' ? 'computer' : 'player')
   }
 
-  const victoryConditionsCheck = (mover) => {
-    // 1. Победа по горизонтали
-    if (matrix.testMatrixAxis({ mover })) {
-      return {
-        victory: true,
-        message: 'Победа по горизонтали'
-      }
-    }
-
-    // 2. Победа по вертикали
-    if (matrix.testMatrixAxis({ mover, direction: 'vertical' })) {
-      return {
-        victory: true,
-        message: 'Победа по вертикали'
-      }
-    }
-
-    // 3. Победа по диагонали слева вниз
-    if (matrix.testMatrixDiagonal({ mover })) {
-      return {
-        victory: true,
-        message: 'Победа по диагонали'
-      }
-    }
-
-    // 4. Победа по диагонали справа вниз
-    if (matrix.testMatrixDiagonal({ mover, direction: 'toTop' })) {
-      return {
-        victory: true,
-        message: 'Победа по диагонали'
-      }
-    }
-
-    return {
-      victory: false,
-      message: null
-    }
-  }
-
+  /**
+   * Проверка свободных ячеек
+   * @returns {Boolean}
+   */
   const checkFreeMovies = () => {
     let result = 0;
 
@@ -109,6 +134,9 @@ export function useGameplay() {
     return (result > 0)
   }
 
+  /**
+   * Объявить ничью
+   */
   const declareDraw = () => {
     if (debugMode) {
       const matrix = computed(() => store.getters['getMatrix']).value
@@ -120,6 +148,10 @@ export function useGameplay() {
     gameOver()
   }
 
+  /**
+   * Объявить победителя
+   * @param {Object} victory Описание победителя 
+   */
   const declareWinner = (victory) => {
     if (debugMode) {
       const matrix = computed(() => store.getters['getMatrix']).value
@@ -131,6 +163,9 @@ export function useGameplay() {
     gameOver()
   }
 
+  /**
+   * Сброс игры
+   */
   const resetGame = () => {
     if (debugMode) console.log('[debug] gameplay:resetGame()')
 
@@ -138,6 +173,9 @@ export function useGameplay() {
     store.dispatch('clearCurrentGameStat')
   }
 
+  /**
+   * Окончание игры
+   */
   const gameOver = () => {
     const gameState = computed(() => store.getters['getGameState']).value
     if (debugMode) console.log(`[debug] gameplay:newGame() gameState:`, gameState)
@@ -158,7 +196,6 @@ export function useGameplay() {
     getCurrentMove,
     changeMove,
     setMark,
-    victoryConditionsCheck,
     checkFreeMovies,
     declareDraw,
     declareWinner,

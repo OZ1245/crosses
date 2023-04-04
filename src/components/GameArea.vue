@@ -84,8 +84,10 @@ let db__y = ref(0)
 let db__allowMoverPopup = computed(() => debug.getAllowMoverPopup())
 // END [DEBUG values]
 
+// Получение собранной матрицы для отрисовки
 let matrix = computed(() => getMatrix())
 
+// Наблюдатель передает ход компьютеру
 let currentMove = computed(() => gameplay.getCurrentMove())
 watch(currentMove, (val, old) => {
   if (val !== old && val === 'computer') {
@@ -93,8 +95,10 @@ watch(currentMove, (val, old) => {
   }
 })
 
+// Инициализация педаставления первого хода
 gameplay.changeMove(settings.firstMove)
 
+// Метод установки маркера игроком
 const onMark = (x, y) => {
   gameplay.setMark({
     mover: 'player',
@@ -103,6 +107,7 @@ const onMark = (x, y) => {
 }
 
 // [DEBUG methods]
+// Показывает попап выбора, за кого ходить
 const db__fShowCellPopup = (x, y) => {
   console.log('[debug] db__fShowCellPopup method | x:', x)
   console.log('[debug] db__fShowCellPopup method | y:', y)
@@ -111,6 +116,7 @@ const db__fShowCellPopup = (x, y) => {
   db__showCellPopup.value = true
 }
 
+// Метод установки маркера в дебаг-режиме
 const db__onMark = ({ coords, mover }) => {
   console.log('[debug] db__onMark method | mover:', mover)
   console.log('[debug] db__onMark method | settings.computerMark:', settings.computerMark)
@@ -122,10 +128,12 @@ const db__onMark = ({ coords, mover }) => {
   })
 }
 
+// Проверка разрешения показывать дебаг-попап
 const db__onAllowMoverPopup = () => {
   debug.allowMoverPopup(!db__allowMoverPopup.value)
 }
 
+// Сброс игры в дебг-режиме
 const db__onResetGame = () => {
   console.log('[debug] Сброс игры')
 

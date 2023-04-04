@@ -3,18 +3,26 @@ import { useStore } from 'vuex'
 import { useDebug } from '@/libs/debug.js'
 import { useSettings } from '@/libs/settings.js'
 
+/**
+ * Библиотека управления матрицей (поля игры)
+ * @returns {Object} Публичные методы
+ */
 export function useMatrix() {
   const store = useStore()
   const { settings } = useSettings()
   const { debugMode } = useDebug()
 
+  // Инициализация css-переменных необходимых для отрисовки матрицы
   const documentRoot = document.documentElement
   documentRoot.style.setProperty(
     "--matrix-range",
     settings.range
   )
 
-  // Траспонирование матрицы
+  /**
+   * Траспонирование матрицы
+   * @returns {Array} Повернутая матрица
+   */
   const $_matrix_transposedMatrix = () => {
     const matrix = computed(() => store.getters['getMatrix']).value
 
@@ -22,7 +30,10 @@ export function useMatrix() {
       .map((_, i) => matrix.map(row => row[i]))
   }
 
-  // Отзеркаливание матрицы
+  /**
+   * Отзеркаливание матрицы
+   * @returns {Array} Перевернутая матрица
+   */
   const $_matrix_mirroredMatrix = () => {
     const matrix = computed(() => store.getters['getMatrix']).value
 
@@ -30,7 +41,12 @@ export function useMatrix() {
       .map(row => row.slice().reverse())
   }
 
-  // Проверка по осям
+  /**
+   * Проверка заполнености по осям
+   * @param {String} mover Кто ходит
+   * @param {String} direction В каком направлении проверять: horizontal, vertical 
+   * @returns {Boolean} результат проверки
+   */
   const testAxis = ({ mover, direction = 'horizontal' }) => {
     const matrix = computed(() => store.getters['getMatrix']).value
 
@@ -48,7 +64,12 @@ export function useMatrix() {
     }
   }
 
-  // Проверка по диагонали
+  /**
+   * Проверка по диагонали
+   * @param {String} mover Кто ходит 
+   * @param {String} direction В каком направлении проверять: toBottom, toTop 
+   * @returns {Boolean} Результат проверки
+   */
   const testDiagonal = ({ mover, direction = 'toBottom' }) => {
     const matrix = computed(() => store.getters['getMatrix']).value
 
@@ -68,6 +89,9 @@ export function useMatrix() {
     }
   }
 
+  /**
+   * Инициализация пустой матрицы на остнове настроек
+   */
   const setMatrix = () => {
     const matrix = reactive(
       Array(settings.range)
@@ -78,12 +102,24 @@ export function useMatrix() {
     store.dispatch('setMatrix', matrix)
   }
 
+  // Получить сгененрированную матрицу
   const getMatrix = () => computed(() => store.getters['getMatrix']).value
 
+  /**
+   * Установить маркер в ячейку
+   * @param {String} mark Маркер
+   * @param {Object} coords Координаты { x, y }
+   */
   const markCell = ({ mark, coords }) => {
     store.dispatch('markCell', { mark, coords })
   }
   
+  /**
+   * Проверить ячейку
+   * @param {Integer} Координата x 
+   * @param {Integer} Координата y 
+   * @returns {Boolean} Результат проверки 
+   */
   const checkCell = ({ x, y }) => {
     if (debugMode) console.log('[debug] matrix():checkCell coords:', { x, y })
 
