@@ -31,9 +31,25 @@ const router = useRouter()
   background-position: 3000px;
   perspective: 1000px;
   perspective-origin: 50% 50%;
+
+  
 }
 
 .home::before {
+  content: '';
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+
+  background-color: #07b107;
+  mix-blend-mode: screen;
+}
+
+.home::after {
   content: '';
 
   position: absolute;
