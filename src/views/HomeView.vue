@@ -1,18 +1,19 @@
 <template>
   <div class="home">
-    <button 
-      type="button"
+    <TheButton 
+      outline
       @click="router.push({
         name: 'Game'
       })"
     >
-      Start
-    </button>
+      Играть
+    </TheButton>
   </div>
 </template>
 
 <script setup>
 import { useRouter } from 'vue-router'
+import TheButton from '@/components/ui/TheButton';
 
 const router = useRouter()
 </script>
@@ -43,7 +44,7 @@ const router = useRouter()
   height: 100%;
   z-index: -1;
 
-  background: linear-gradient(-45deg, #23a6d5, #23d5ab);
+  background: linear-gradient(-45deg, var(--blue-light), var(--green-light));
   mix-blend-mode: hard-light;
 }
 
