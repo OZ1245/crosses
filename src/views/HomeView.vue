@@ -28,11 +28,9 @@ const router = useRouter()
 
   animation: scroll 70s linear infinite;
   background: url(~@/assets/background-menu.jpg);
-  background-position: 3000px;
+  background-position: 300%;
   perspective: 1000px;
   perspective-origin: 50% 50%;
-
-  
 }
 
 .home::before {
@@ -45,8 +43,8 @@ const router = useRouter()
   height: 100%;
   z-index: -1;
 
-  background-color: #07b107;
-  mix-blend-mode: screen;
+  background: linear-gradient(-45deg, #23a6d5, #23d5ab);
+  mix-blend-mode: hard-light;
 }
 
 .home::after {
@@ -57,13 +55,9 @@ const router = useRouter()
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;
-
-  animation: gradient 15s ease infinite;
-  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-  background-size:  400% 400%;
   
-  mix-blend-mode: hard-light;
+  box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.4) inset;
+  pointer-events: none;
 }
 
 @keyframes scroll {
