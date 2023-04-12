@@ -83,7 +83,8 @@ const props = defineProps({
       background-color: var(--green-light);
       color: var(--white);
 
-      box-shadow: 0px 0px 8px 0px rgba(var(--gray), 0.2); // FIXME:
+      // box-shadow: 0px 0px 8px 0px rgba(var(--gray), 0.2); // FIXME:
+      box-shadow: 0px 0px 8px 0px rgba(var(--gray-rgb), 0.2);
     }
   }
 }

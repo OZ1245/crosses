@@ -1,7 +1,13 @@
 :root {
-  --green: #109b14;
   --blue-light: #23a6d5;
+  
+  --green: #109b14;
   --green-light: #23d5ab;
+
   --white: #FFFFFF;
+  --white-rgb: #{HexToRgb(#FFFFFF)};
+
   --gray: #7c7c7c;
+  --gray-light: #c5c5c5;
+  --gray-rgb: #{HexToRgb(#7c7c7c)};
 }

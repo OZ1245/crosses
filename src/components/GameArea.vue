@@ -14,6 +14,8 @@
             type="button"
             :disabled="currentMove === 'computer' || cell"
             :ref="`cell-${x}-${y}`"
+            class="game-area__cell-button"
+
             @click="debugMode && db__allowMoverPopup ? db__fShowCellPopup(x, y) : onMark(x, y)"
           >
             {{ cell || 'ㅤ' }}
@@ -143,13 +145,42 @@ const db__onResetGame = () => {
 </script>
 
 <style lang="scss">
+.game-area {
+  width: 80%;
+}
 .game-area__grid {
   display: grid;
   grid-template-columns: repeat(var(--matrix-range), auto);
+  gap: 4px;
 }
 
 .game-area__cell {
   position: relative;
+  aspect-ratio: 1/1;
+}
+.game-area__cell-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background-color: rgba(var(--white-rgb), .5);
+  border-width: 3px;
+  border-style: solid;
+  border-color: transparent;
+  transition: border-color .3s;
+  
+  &:hover:not(:disabled) {
+    border-color: var(--white);
+    transition: border-color .15s;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    background-color: transparent;
+  }
 }
 
 .game-area__cell-popup {

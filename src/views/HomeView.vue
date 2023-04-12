@@ -32,33 +32,33 @@ const router = useRouter()
   background-position: 300%;
   perspective: 1000px;
   perspective-origin: 50% 50%;
-}
 
-.home::before {
-  content: '';
+  &::before {
+    content: '';
 
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
 
-  background: linear-gradient(-45deg, var(--blue-light), var(--green-light));
-  mix-blend-mode: hard-light;
-}
+    background: linear-gradient(-45deg, var(--blue-light), var(--green-light));
+    mix-blend-mode: hard-light;
+  }
 
-.home::after {
-  content: '';
+  &::after {
+    content: '';
 
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  
-  box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.4) inset;
-  pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    box-shadow: 0px 0px 30px 0px rgba(0, 0, 0, 0.4) inset;
+    pointer-events: none;
+  }
 }
 
 @keyframes scroll {
