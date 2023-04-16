@@ -54,9 +54,14 @@
         v-if="debugMode"
         class="game-area__debug-actions-panel"
       >
-        <button @click="db__onAllowMoverPopup()">
-          Выбор хода: {{ db__allowMoverPopup ? 'вкл' : 'выкл' }}
-        </button>
+        <TheButton 
+          toggler
+          :toggle-value="db__allowMoverPopup"
+          outline
+          @click="db__onAllowMoverPopup()"
+        >
+          Выбор хода
+        </TheButton>
 
         <button @click="db__onResetGame()">
           Сброс
@@ -73,6 +78,8 @@ import { useDebug } from '@/libs/debug.js'
 import { useMatrix } from '@/libs/matrix.js'
 import { useComputer } from '@/libs/computer.js'
 import { useGameplay } from '@/libs/gameplay.js'
+
+import TheButton from '@/components/ui/TheButton';
 
 const { settings } = useSettings()
 const { getMatrix } = useMatrix()
