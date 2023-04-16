@@ -1,66 +1,68 @@
 <template>
   <div class="game-area">
-    <section class="game-area__grid">
-      <template 
-        v-for="(row, x) in matrix"
-        :key="`row-${x}`"
-      >
-        <div 
-          v-for="(cell, y) in row"
-          :key="`cell-${y}`"
-          class="game-area__cell"
+    <div class="game-area__wrapper">
+      <section class="game-area__grid">
+        <template 
+          v-for="(row, x) in matrix"
+          :key="`row-${x}`"
         >
-          <button 
-            type="button"
-            :disabled="currentMove === 'computer' || cell"
-            :ref="`cell-${x}-${y}`"
-            class="game-area__cell-button"
-
-            @click="debugMode && db__allowMoverPopup ? db__fShowCellPopup(x, y) : onMark(x, y)"
+          <div 
+            v-for="(cell, y) in row"
+            :key="`cell-${y}`"
+            class="game-area__cell"
           >
-            {{ cell || 'ㅤ' }}
-          </button>
+            <button 
+              type="button"
+              :disabled="currentMove === 'computer' || cell"
+              :ref="`cell-${x}-${y}`"
+              class="game-area__cell-button"
 
-          <ul
-            v-if="debugMode && db__allowMoverPopup"
-            v-show="db__showCellPopup && (x === db__x && y === db__y)" 
-            class="game-area__cell-popup"
-          >
-            <li 
-              class="game-area__item"
-              @click="db__onMark({
-                coords: { x, y },
-                mover: 'player'
-              })"
+              @click="debugMode && db__allowMoverPopup ? db__fShowCellPopup(x, y) : onMark(x, y)"
             >
-              player
-            </li>
-            <li 
-              class="game-area__item"
-              @click="db__onMark({
-                coords: { x, y },
-                mover: 'computer'
-              })"
+              {{ cell || 'ㅤ' }}
+            </button>
+
+            <ul
+              v-if="debugMode && db__allowMoverPopup"
+              v-show="db__showCellPopup && (x === db__x && y === db__y)" 
+              class="game-area__cell-popup"
             >
-              computer
-            </li>
-          </ul>
-        </div>
-      </template>
-    </section>
+              <li 
+                class="game-area__item"
+                @click="db__onMark({
+                  coords: { x, y },
+                  mover: 'player'
+                })"
+              >
+                player
+              </li>
+              <li 
+                class="game-area__item"
+                @click="db__onMark({
+                  coords: { x, y },
+                  mover: 'computer'
+                })"
+              >
+                computer
+              </li>
+            </ul>
+          </div>
+        </template>
+      </section>
 
-    <section 
-      v-if="debugMode"
-      class="game-area__debug-actions-panel"
-    >
-      <button @click="db__onAllowMoverPopup()">
-        Выбор хода: {{ db__allowMoverPopup ? 'вкл' : 'выкл' }}
-      </button>
+      <section 
+        v-if="debugMode"
+        class="game-area__debug-actions-panel"
+      >
+        <button @click="db__onAllowMoverPopup()">
+          Выбор хода: {{ db__allowMoverPopup ? 'вкл' : 'выкл' }}
+        </button>
 
-      <button @click="db__onResetGame()">
-        Сброс
-      </button>
-    </section>
+        <button @click="db__onResetGame()">
+          Сброс
+        </button>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -147,11 +149,22 @@ const db__onResetGame = () => {
 <style lang="scss">
 .game-area {
   width: 80%;
+  height: 100%;
+}
+.game-area__wrapper {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 .game-area__grid {
   display: grid;
   grid-template-columns: repeat(var(--matrix-range), auto);
   gap: 4px;
+  height: 100%;
+  aspect-ratio: 1;
 }
 
 .game-area__cell {
