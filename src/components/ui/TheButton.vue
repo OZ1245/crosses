@@ -6,10 +6,11 @@
       `button--${props.size}`,
       { 'button--outline': props.outline },
       { 'button--primary': props.primary },
+
       { 'button--toggler': props.toggler },
-      { 'button--boolean': props.toggleType },
-      { 'button--on': props.toggleType && props.toggleValue },
-      { 'button--off': props.toggleType && !props.toggleValue },
+      { 'button--boolean': props.toggler && props.toggleType === 'boolean' },
+      { 'button--on': props.toggler && props.toggleType === 'boolean' && props.toggleValue },
+      { 'button--off': props.toggler && props.toggleType === 'boolean' && !props.toggleValue },
     ]"
 
     @click="onClick()"
@@ -59,6 +60,7 @@ const props = defineProps({
     required: false,
     default: 'boolean',
   },
+  // Если внешнее значение computed-выражение
   toggleValue: {
     required: false,
   }
@@ -129,9 +131,14 @@ const onClick = () => {
   // Types
   // PRIMARY
   &--primary {
-    border-color: var(--green-light);
-    background-color: var(--green-light);
+    border-color: var(--green);
+    background-color: var(--green);
     color: var(--white);
+
+    &:hover {
+      border-color: var(--green-light);
+      background-color: var(--green-light);
+    }
 
     &.button--on::after {
       border-color: var(--white);
@@ -164,7 +171,6 @@ const onClick = () => {
         background-color: var(--green-light);
         color: var(--white);
         
-        // box-shadow: 0px 0px 8px 0px rgba(var(--gray), 0.2); // FIXME:
         box-shadow: 0px 0px 8px 0px rgba(var(--gray-rgb), 0.2);
 
         &.button--on::after {

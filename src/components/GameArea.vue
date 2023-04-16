@@ -55,6 +55,12 @@
         class="game-area__debug-actions-panel"
       >
         <TheButton 
+          @click="db__onResetGame()"
+        >
+          Сброс
+        </TheButton>
+
+        <TheButton 
           toggler
           :toggle-value="db__allowMoverPopup"
           outline
@@ -62,10 +68,6 @@
         >
           Выбор хода
         </TheButton>
-
-        <button @click="db__onResetGame()">
-          Сброс
-        </button>
       </section>
     </div>
   </div>
@@ -156,7 +158,7 @@ const db__onResetGame = () => {
 <style lang="scss">
 .game-area {
   width: 80%;
-  height: 100%;
+  height: 90%;
 }
 .game-area__wrapper {
   display: flex;
@@ -169,7 +171,7 @@ const db__onResetGame = () => {
 .game-area__grid {
   display: grid;
   grid-template-columns: repeat(var(--matrix-range), auto);
-  gap: 4px;
+  gap: 3%;
   height: 100%;
   aspect-ratio: 1;
 }
@@ -185,11 +187,14 @@ const db__onResetGame = () => {
   width: 100%;
   height: 100%;
   padding: 0;
-  border: 0;
+  
   background-color: rgba(var(--white-rgb), .5);
+  
   border-width: 3px;
   border-style: solid;
   border-color: transparent;
+  border-radius: 4px;
+
   transition: border-color .3s;
   
   &:hover:not(:disabled) {
@@ -201,6 +206,16 @@ const db__onResetGame = () => {
   &:disabled {
     background-color: transparent;
   }
+}
+
+// DEBUG
+.game-area__debug-actions-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
 }
 
 .game-area__cell-popup {
