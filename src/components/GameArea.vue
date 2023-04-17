@@ -17,35 +17,10 @@
               :ref="`cell-${x}-${y}`"
               class="game-area__cell-button"
 
-              @click="debugMode && db__allowMoverPopup ? db__fShowCellPopup(x, y) : onMark(x, y)"
+              @click="debugMode && db__allowMoverPopup ? db__fShowCellPopup($event, x, y) : onMark(x, y)"
             >
               {{ cell || 'ㅤ' }}
             </button>
-
-            <ul
-              v-if="debugMode && db__allowMoverPopup"
-              v-show="db__showCellPopup && (x === db__x && y === db__y)" 
-              class="game-area__cell-popup"
-            >
-              <li 
-                class="game-area__item"
-                @click="db__onMark({
-                  coords: { x, y },
-                  mover: 'player'
-                })"
-              >
-                player
-              </li>
-              <li 
-                class="game-area__item"
-                @click="db__onMark({
-                  coords: { x, y },
-                  mover: 'computer'
-                })"
-              >
-                computer
-              </li>
-            </ul>
           </div>
         </template>
       </section>
@@ -68,6 +43,17 @@
         >
           Выбор хода
         </TheButton>
+
+        <!-- Popup menu -->
+        <PopupMenu
+          v-if="debugMode && db__allowMoverPopup"
+          v-model="db__showCellPopup"
+          :coords="{
+            x: db__popupX,
+            y: db__popupY
+          }"
+          :menu-list="moverPopupMenuList"
+        ></PopupMenu>
       </section>
     </div>
   </div>
@@ -82,6 +68,7 @@ import { useComputer } from '@/libs/computer.js'
 import { useGameplay } from '@/libs/gameplay.js'
 
 import TheButton from '@/components/ui/TheButton';
+import PopupMenu from '@/components/ui/PopupMenu'
 
 const { settings } = useSettings()
 const { getMatrix } = useMatrix()
@@ -94,7 +81,29 @@ const debugMode = debug.debugMode
 let db__showCellPopup = ref(false)
 let db__x = ref(0)
 let db__y = ref(0)
+let db__popupX = ref(0)
+let db__popupY = ref(0)
 let db__allowMoverPopup = computed(() => debug.getAllowMoverPopup())
+const moverPopupMenuList = [
+  {
+    title: 'Игрок',
+    handler: () => {
+      db__onMark({
+        coords: { x: db__x.value, y: db__y.value },
+        mover: 'player'
+      }) 
+    }
+  },
+  {
+    title: 'Компьютер',
+    handler: () => {
+      db__onMark({
+        coords: { x: db__x.value, y: db__y.value },
+        mover: 'computer'
+      })
+    }
+  }
+]
 // END [DEBUG values]
 
 // Получение собранной матрицы для отрисовки
@@ -121,11 +130,13 @@ const onMark = (x, y) => {
 
 // [DEBUG methods]
 // Показывает попап выбора, за кого ходить
-const db__fShowCellPopup = (x, y) => {
+const db__fShowCellPopup = ($event, x, y) => {
   console.log('[debug] db__fShowCellPopup method | x:', x)
   console.log('[debug] db__fShowCellPopup method | y:', y)
   db__x.value = x
   db__y.value = y
+  db__popupX.value = $event.x
+  db__popupY.value = $event.y
   db__showCellPopup.value = true
 }
 
@@ -177,7 +188,6 @@ const db__onResetGame = () => {
 }
 
 .game-area__cell {
-  position: relative;
   aspect-ratio: 1/1;
 }
 .game-area__cell-button {
@@ -216,34 +226,5 @@ const db__onResetGame = () => {
   gap: 12px;
   width: 100%;
   padding: 12px;
-}
-
-.game-area__cell-popup {
-  display: block;
-  width: auto;
-  margin: 0;
-  padding: 10px;
-  list-style: none;
-
-  background-color: white;
-  border: 1px solid gray;
-
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-  transform: translateY(100%);
-}
-
-.game-area__item {
-  cursor: pointer;
-
-  &:not(:last-child) {
-    margin-bottom: 5px;
-  }
-
-  &:hover {
-    color: red
-  }
 }
 </style>
